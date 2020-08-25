@@ -24,7 +24,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version  = 2020081500;   // The (date) version of this plugin.
+$plugin->version  = 2020082000;   // The (date) version of this plugin.
 $plugin->release = '0.1 (2020062500)';
 $plugin->requires  = 2019111800;        // Requires this Moodle version.
 $plugin->component = 'local_lict_webservicesuite'; // Full name of the plugin (used for diagnostics).

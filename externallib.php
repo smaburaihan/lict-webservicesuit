@@ -130,8 +130,9 @@ class local_lict_webservicesuite_external extends gradereport_user_external {
                                                 array(
                                                     'category' => new external_value(PARAM_INT, 'Question bank Category id'),
                                                     'name' => new external_value(PARAM_TEXT, 'Question bank Category name'),
-                                                    'q_count' => new external_value(PARAM_INT, 'Number of question in this category'),
-                                                    'suc_per' => new external_value(PARAM_FLOAT, 'Percentage of right answer in this category.'),
+                                                    'question_count' => new external_value(PARAM_INT, 'Number of question in this category'),
+                                                    'success_count' => new external_value(PARAM_INT, 'Percentage of right answer in this category.'),
+                                                    'fail_count' => new external_value(PARAM_INT, 'Percentage of right answer in this category.'),
 
                                                 ), 'Grade items'
                                             ), 'Quiz ids'
@@ -151,17 +152,23 @@ class local_lict_webservicesuite_external extends gradereport_user_external {
     {
         global $DB;
 
-        $sql = 'SELECT  mq.category, mqc.name, COUNT(mqa.id) AS q_count,
-        COUNT(mqa.id) * 100 / SUM( CASE WHEN mqa.rightanswer = mqa.responsesummary THEN mqa.`maxmark` ELSE 0 END ) AS suc_per 
+        $sql = 'SELECT  mq.category, mqc.name, COUNT(mqa.id) AS question_count,
+        SUM( CASE WHEN mqa.rightanswer = mqa.responsesummary THEN 1 ELSE 0 END ) AS success_count, 
+        SUM( CASE WHEN mqa.rightanswer != mqa.responsesummary THEN 1 ELSE 0 END ) AS fail_count
         FROM {question_attempts} AS mqa
         LEFT JOIN {question} AS mq ON mqa.questionid = mq.id
         LEFT JOIN {question_categories} AS mqc ON mq.category = mqc.id WHERE mqa.questionusageid IN (
         SELECT uniqueid FROM {quiz_attempts} WHERE userid= :student_id AND quiz = :quiz_id) GROUP BY mq.category';
-        return $response_attempt_grade =  $DB->get_records_sql($sql,
+        $response_attempt_grade =  $DB->get_records_sql($sql,
         [
             'student_id' =>$student_id,
             'quiz_id' =>$quiz_id,
         ]);
+//
+//        array_map(function ($item){
+//            $item->suc_per = is_null($item->suc_per)?0.00:$item->suc_per;
+//        },$response_attempt_grade);
+        return $response_attempt_grade;
 
 
     }
