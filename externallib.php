@@ -153,8 +153,8 @@ class local_lict_webservicesuite_external extends gradereport_user_external {
         global $DB;
 
         $sql = 'SELECT  mq.category, mqc.name, COUNT(mqa.id) AS question_count,
-        SUM( CASE WHEN mqa.rightanswer = mqa.responsesummary THEN 1 ELSE 0 END ) AS success_count, 
-        SUM( CASE WHEN mqa.rightanswer != mqa.responsesummary THEN 1 ELSE 0 END ) AS fail_count
+        SUM( CASE WHEN (SELECT fraction FROM {question_attempt_steps} WHERE questionattemptid = mqa.id ORDER BY timecreated DESC LIMIT 1 OFFSET 0 ) * mqa.maxmark > 0 THEN 1 ELSE 0 END ) AS success_count, 
+        SUM( CASE WHEN (SELECT fraction FROM {question_attempt_steps} WHERE questionattemptid = mqa.id ORDER BY timecreated DESC LIMIT 1 OFFSET 0 ) * mqa.maxmark <= 0 THEN 1 ELSE 0 END ) AS fail_count
         FROM {question_attempts} AS mqa
         LEFT JOIN {question} AS mq ON mqa.questionid = mq.id
         LEFT JOIN {question_categories} AS mqc ON mq.category = mqc.id WHERE mqa.questionusageid IN (
